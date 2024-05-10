@@ -2,6 +2,10 @@
 # DEPLOY LAMBDA FUNCTIONS
 # ------------------------------------------------------------------------------
 
+provider "aws" {
+  region     = "us-east-1"
+}
+
 resource "aws_vpc" "cognito-lambda-vpc" {
   cidr_block = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -41,91 +45,89 @@ resource "aws_security_group" "cognito-lambda-sg" {
   }
 }
 
-
 resource "aws_iam_policy" "cognito-lambda-policy" {
   name        = "cognito-lambda-policy"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect = "Allow"
+      Effect = "Allow",
       Action = [
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents"
-      ]
+      ],
       Resource = ["arn:aws:logs:*:*:*"]
     },{
-      Effect = "Allow"
+      Effect = "Allow",
       Action = [
         "ec2:CreateNetworkInterface",
         "ec2:DescribeNetworkInterfaces",
         "ec2:DeleteNetworkInterface"
-      ]
+      ],
       Resource = ["*"]
     },{
-        "Effect": "Allow",
-        "Action": [
-            "cognito-identity:GetOpenIdTokenForDeveloperIdentity",
-            "cognito-identity:LookupDeveloperIdentity",
-            "cognito-identity:MergeDeveloperIdentities",
-            "cognito-identity:UnlinkDeveloperIdentity"
-        ],
-        "Resource": "*"
+      "Effect": "Allow",
+      "Action": [
+        "cognito-identity:GetOpenIdTokenForDeveloperIdentity",
+        "cognito-identity:LookupDeveloperIdentity",
+        "cognito-identity:MergeDeveloperIdentities",
+        "cognito-identity:UnlinkDeveloperIdentity"
+      ],
+      "Resource": "*"
     },{
-        "Effect": "Allow",
-        "Action": [
-            "cognito-identity:*",
-            "cognito-idp:*",
-            "cognito-sync:*",
-            "iam:ListRoles",
-            "iam:ListOpenIdConnectProviders",
-            "iam:GetRole",
-            "iam:ListSAMLProviders",
-            "iam:GetSAMLProvider",
-            "kinesis:ListStreams",
-            "lambda:GetPolicy",
-            "lambda:ListFunctions",
-            "sns:GetSMSSandboxAccountStatus",
-            "sns:ListPlatformApplications",
-            "ses:ListIdentities",
-            "ses:GetIdentityVerificationAttributes",
-            "mobiletargeting:GetApps",
-            "acm:ListCertificates"
-        ],
-        "Resource": "*"
+      "Effect": "Allow",
+      "Action": [
+        "cognito-identity:*",
+        "cognito-idp:*",
+        "cognito-sync:*",
+        "iam:ListRoles",
+        "iam:ListOpenIdConnectProviders",
+        "iam:GetRole",
+        "iam:ListSAMLProviders",
+        "iam:GetSAMLProvider",
+        "kinesis:ListStreams",
+        "lambda:GetPolicy",
+        "lambda:ListFunctions",
+        "sns:GetSMSSandboxAccountStatus",
+        "sns:ListPlatformApplications",
+        "ses:ListIdentities",
+        "ses:GetIdentityVerificationAttributes",
+        "mobiletargeting:GetApps",
+        "acm:ListCertificates"
+      ],
+      "Resource": "*"
     },{
-        "Effect": "Allow",
-        "Action": "iam:CreateServiceLinkedRole",
-        "Resource": "*",
-        "Condition": {
-            "StringEquals": {
-                "iam:AWSServiceName": [
-                    "cognito-idp.amazonaws.com",
-                    "email.cognito-idp.amazonaws.com"
-                ]
-            }
+      "Effect": "Allow",
+      "Action": "iam:CreateServiceLinkedRole",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "iam:AWSServiceName": [
+            "cognito-idp.amazonaws.com",
+            "email.cognito-idp.amazonaws.com"
+          ]
         }
+      }
     },{
-        "Effect": "Allow",
-        "Action": [
-            "iam:DeleteServiceLinkedRole",
-            "iam:GetServiceLinkedRoleDeletionStatus"
-        ],
-        "Resource": [
-            "arn:aws:iam::*:role/aws-service-role/cognito-idp.amazonaws.com/AWSServiceRoleForAmazonCognitoIdp*",
-            "arn:aws:iam::*:role/aws-service-role/email.cognito-idp.amazonaws.com/AWSServiceRoleForAmazonCognitoIdpEmail*"
-        ]
+      "Effect": "Allow",
+      "Action": [
+        "iam:DeleteServiceLinkedRole",
+        "iam:GetServiceLinkedRoleDeletionStatus"
+      ],
+      "Resource": [
+        "arn:aws:iam::*:role/aws-service-role/cognito-idp.amazonaws.com/AWSServiceRoleForAmazonCognitoIdp*",
+        "arn:aws:iam::*:role/aws-service-role/email.cognito-idp.amazonaws.com/AWSServiceRoleForAmazonCognitoIdpEmail*"
+      ]
     }]
   })
 }
-
 
 resource "aws_lambda_function" "cognito-define-auth-challenge-lambda" {
   function_name    = "cognito-define-auth-challenge-lambda"
   filename         = "define-auth-challenge.zip"
   source_code_hash = filebase64sha256("define-auth-challenge.zip")
   handler          = "index.handler"
-  role             = "arn:aws:iam::683160847215:role/LabRole"
+  role             = "arn:aws:iam::421716051935:role/LabRole"
   runtime          = "nodejs18.x"
   vpc_config {
     subnet_ids = [aws_subnet.cognito-lambda-subnet.id]
@@ -138,7 +140,7 @@ resource "aws_lambda_function" "cognito-pre-sign-up-lambda" {
   filename         = "pre-sign-up.zip"
   source_code_hash = filebase64sha256("pre-sign-up.zip")
   handler          = "index.handler"
-  role             = "arn:aws:iam::683160847215:role/LabRole"
+  role             = "arn:aws:iam::421716051935:role/LabRole"
   runtime          = "nodejs18.x"
   vpc_config {
     subnet_ids = [aws_subnet.cognito-lambda-subnet.id]
