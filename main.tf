@@ -122,12 +122,23 @@ resource "aws_iam_policy" "cognito-lambda-policy" {
   })
 }
 
+<<<<<<< Updated upstream
+=======
+data "aws_iam_role" "lab_role" {
+  name = "LabRole"
+}
+
+>>>>>>> Stashed changes
 resource "aws_lambda_function" "cognito-define-auth-challenge-lambda" {
   function_name    = "cognito-define-auth-challenge-lambda"
   filename         = "define-auth-challenge.zip"
   source_code_hash = filebase64sha256("define-auth-challenge.zip")
   handler          = "index.handler"
+<<<<<<< Updated upstream
   role             = "arn:aws:iam::421716051935:role/LabRole"
+=======
+  role             = data.aws_iam_role.lab_role.arn
+>>>>>>> Stashed changes
   runtime          = "nodejs18.x"
   vpc_config {
     subnet_ids = [aws_subnet.cognito-lambda-subnet.id]
@@ -140,7 +151,11 @@ resource "aws_lambda_function" "cognito-pre-sign-up-lambda" {
   filename         = "pre-sign-up.zip"
   source_code_hash = filebase64sha256("pre-sign-up.zip")
   handler          = "index.handler"
+<<<<<<< Updated upstream
   role             = "arn:aws:iam::421716051935:role/LabRole"
+=======
+  role             = data.aws_iam_role.lab_role.arn
+>>>>>>> Stashed changes
   runtime          = "nodejs18.x"
   vpc_config {
     subnet_ids = [aws_subnet.cognito-lambda-subnet.id]
